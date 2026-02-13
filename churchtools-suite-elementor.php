@@ -60,14 +60,27 @@ add_action( 'plugins_loaded', function() {
 		return;
 	}
 	
-	// 3. Check if Elementor is active
-	if ( ! did_action( 'elementor/loaded' ) ) {
+	// 3. Check if Elementor is active (check class existence, not hook timing)
+	if ( ! did_action( 'elementor/loaded' ) && ! class_exists( '\\Elementor\\Plugin' ) ) {
 		add_action( 'admin_notices', 'cts_elementor_missing_elementor_notice' );
 		return;
 	}
 	
-	// 4. All dependencies met - Hook into ChurchTools Suite
-	add_action( 'churchtools_suite_loaded', 'cts_elementor_init', 10, 1 );
+	// 4. All dependencies met - Initialize immediately or hook into ChurchTools Suite
+	// If churchtools_suite_loaded already fired, initialize now. Otherwise, hook in.
+	if ( did_action( 'churchtools_suite_loaded' ) ) {
+		// Hook already fired - initialize immediately
+		global $churchtools_suite_plugin_instance;
+		if ( isset( $churchtools_suite_plugin_instance ) && is_object( $churchtools_suite_plugin_instance ) ) {
+			cts_elementor_init( $churchtools_suite_plugin_instance );
+		} else {
+			// No instance available, try initializing anyway
+			cts_elementor_init( null );
+		}
+	} else {
+		// Hook not fired yet - register callback
+		add_action( 'churchtools_suite_loaded', 'cts_elementor_init', 10, 1 );
+	}
 	
 }, 20 ); // Priority 20 to ensure Elementor and Main Plugin are loaded first
 
@@ -76,10 +89,10 @@ add_action( 'plugins_loaded', function() {
  * 
  * Called via churchtools_suite_loaded hook after all dependencies are loaded
  * 
- * @param ChurchTools_Suite $plugin Main plugin instance
+ * @param ChurchTools_Suite|null $plugin Main plugin instance (optional)
  * @since 0.5.0
  */
-function cts_elementor_init( $plugin ) {
+function cts_elementor_init( $plugin = null ) {
 	// Load integration class
 	require_once CTS_ELEMENTOR_PATH . 'includes/class-cts-elementor-integration.php';
 	
@@ -88,10 +101,11 @@ function cts_elementor_init( $plugin ) {
 	
 	// Log initialization (if logger available)
 	if ( function_exists( 'error_log' ) ) {
+		$version = $plugin ? $plugin->get_version() : 'unknown';
 		error_log( sprintf(
 			'[CTS Elementor] Sub-Plugin v%s initialized with ChurchTools Suite v%s',
 			CTS_ELEMENTOR_VERSION,
-			$plugin->get_version()
+			$version
 		) );
 	}
 }
