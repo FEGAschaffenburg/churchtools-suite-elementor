@@ -114,51 +114,37 @@ foreach ($pattern in $exclusions) {
 }
 
 Write-Host ""
-Write-Host "Creating ZIP with WordPress-compatible paths..." -ForegroundColor Green
+Write-Host "Creating ZIP with WordPress-compatible paths (forward slashes)..." -ForegroundColor Green
 
-# Create ZIP (PowerShell 5.1 compatible)
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-$compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
-[System.IO.Compression.ZipFile]::CreateFromDirectory($tempDir, $zipPath, $compressionLevel, $false)
-
-# Normalize paths to forward slashes (WordPress requirement)
-Write-Host "Normalizing paths to forward slashes..." -ForegroundColor Green
+# Create ZIP manually to control path format (PowerShell 5.1 compatible)
 Add-Type -AssemblyName System.IO.Compression
-$zip = [System.IO.Compression.ZipFile]::Open($zipPath, 'Update')
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$entriesToFix = @()
-foreach ($entry in $zip.Entries) {
-    if ($entry.FullName -match '\\') {
-        $entriesToFix += @{
-            OldName = $entry.FullName
-            NewName = $entry.FullName -replace '\\', '/'
-        }
-    }
-}
+$compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
 
-# Fix paths by recreating entries
-foreach ($fix in $entriesToFix) {
-    $oldEntry = $zip.GetEntry($fix.OldName)
-    if ($oldEntry) {
-        # Extract content
-        $stream = $oldEntry.Open()
-        $reader = New-Object System.IO.BinaryReader($stream)
-        $content = $reader.ReadBytes([int]$oldEntry.Length)
-        $reader.Close()
-        $stream.Close()
-        
-        # Delete old entry
-        $oldEntry.Delete()
-        
-        # Create new entry with correct path
-        $newEntry = $zip.CreateEntry($fix.NewName, $compressionLevel)
-        $newStream = $newEntry.Open()
-        $newStream.Write($content, 0, $content.Length)
-        $newStream.Close()
-    }
+# Create ZIP file
+$zipFileStream = [System.IO.File]::Create($zipPath)
+$zip = [System.IO.Compression.ZipArchive]::new($zipFileStream, [System.IO.Compression.ZipArchiveMode]::Create)
+
+# Recursively add files from temp directory with forward slashes
+$tempDirLength = $tempDir.Length + 1
+Get-ChildItem -Path $tempDir -Recurse -File | ForEach-Object {
+    # Create entry path relative to temp dir with forward slashes
+    $relativePath = $_.FullName.Substring($tempDirLength).Replace('\', '/')
+    
+    # Create ZIP entry
+    $entry = $zip.CreateEntry($relativePath, $compressionLevel)
+    
+    # Copy file content to entry
+    $entryStream = $entry.Open()
+    $fileStream = [System.IO.File]::OpenRead($_.FullName)
+    $fileStream.CopyTo($entryStream)
+    $fileStream.Close()
+    $entryStream.Close()
 }
 
 $zip.Dispose()
+$zipFileStream.Close()
 
 # Validate ZIP structure
 Write-Host "Validating..." -ForegroundColor Green

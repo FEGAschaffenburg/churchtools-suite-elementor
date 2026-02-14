@@ -1,5 +1,21 @@
 # ChurchTools Suite - Elementor Integration - Changelog
 
+## v0.5.3 - Build System Fix (15. Februar 2025)
+
+### 🐛 Bugfix
+- **ZIP Build System** - Fix empty file content in WordPress ZIP
+  - v0.5.2 ZIP hatte korrekte Ordnerstruktur, aber leere Dateien (alle 0 Bytes)
+  - Problem: Build-Script versuchte Backslashes nachträglich zu konvertieren
+  - Lösung: ZIP direkt mit Forward-Slashes erstellen
+  - Build-Script erstellt jetzt funktionsfähige ZIPs mit Dateiinhalten
+  - One-Click Installation funktioniert jetzt korrekt
+
+### 📝 Technische Details
+- **Problem:** `create-wp-zip.ps1` las komprimierte Bytes und schrieb sie als unkomprimiert
+- **Fix:** Verwende `ZipArchive` statt `CreateFromDirectory()` + nachträgliche Änderung
+- **Ergebnis:** ZIP mit 42 KB unkomprimiert (vorher: 0 Bytes)
+- **GitHub Asset:** Jetzt funktionsfähig für One-Click Installation
+
 ## v0.5.0 - Initial Beta Release (13. Februar 2026)
 
 ### ✨ Neue Features
