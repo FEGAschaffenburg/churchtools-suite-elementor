@@ -227,130 +227,215 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			// ========================================
 			$this->start_controls_section(
 				'display_section',
-				[
-					'label' => __( 'Anzeigeoptionen', 'churchtools-suite' ),
-					'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-				]
-			);
-
-			$this->add_control(
-				'show_event_description',
-				[
-					'label' => __( 'Event-Beschreibung', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_appointment_description',
-				[
-					'label' => __( 'Termin-Beschreibung', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_location',
-				[
-					'label' => __( 'Ort', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_time',
-				[
-					'label' => __( 'Uhrzeit', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_tags',
-				[
-					'label' => __( 'Tags', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_images',
-				[
-					'label' => __( 'Bilder', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_calendar_name',
-				[
-					'label' => __( 'Kalendername', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-				]
-			);
-
-			$this->add_control(
-				'show_month_separator',
-				[
-					'label' => __( 'Monatstrenner', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'yes',
-					'condition' => [
-						'view_type' => 'list',
+			[
+				'label' => __( 'Anzeigeoptionen', 'churchtools-suite' ),
+				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+				'description' => __( '💡 Die verfügbaren Optionen passen sich automatisch an die gewählte View an. Nicht unterstützte Optionen werden ausgeblendet.', 'churchtools-suite' ),			]
+		);
+		$this->add_control(
+			'show_event_description',
+			[
+				'label' => __( 'Event-Beschreibung', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+						['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
 					],
-				]
-			);
+				],
+			]
+		);
 
-			$this->add_control(
-				'show_services',
-				[
-					'label' => __( 'Services', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'no',
-				]
-			);
+		$this->add_control(
+			'show_appointment_description',
+			[
+				'label' => __( 'Termin-Beschreibung', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+						['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
+					],
+				],
+			]
+		);
 
-			$this->end_controls_section();
+		$this->add_control(
+			'show_location',
+			[
+				'label' => __( 'Ort', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						[
+							'relation' => 'and',
+							'terms' => [
+								['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+								['name' => 'view_list', 'operator' => '!==', 'value' => 'minimal'],
+							],
+						],
+						['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
+					],
+				],
+			]
+		);
 
-			// ========================================
-			// STYLE SECTION
-			// ========================================
-			$this->start_controls_section(
-				'style_section',
-				[
-					'label' => __( 'Stil', 'churchtools-suite' ),
-					'tab' => \Elementor\Controls_Manager::TAB_STYLE,
-				]
-			);
+		$this->add_control(
+			'show_time',
+			[
+				'label' => __( 'Uhrzeit', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'description' => __( '✅ Wird von allen Views unterstützt', 'churchtools-suite' ),
+			]
+		);
 
-			$this->add_control(
-				'style_mode',
-				[
+		$this->add_control(
+			'show_tags',
+			[
+				'label' => __( 'Tags', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						[
+							'relation' => 'and',
+							'terms' => [
+								['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+								['name' => 'view_list', 'operator' => '!==', 'value' => 'minimal'],
+							],
+						],
+						[
+							'relation' => 'and',
+							'terms' => [
+								['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
+								['name' => 'view_grid', 'operator' => '===', 'value' => 'modern'],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'show_images',
+			[
+				'label' => __( 'Bilder', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						[
+							'relation' => 'and',
+							'terms' => [
+								['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+								['name' => 'view_list', 'operator' => '===', 'value' => 'classic-with-images'],
+							],
+						],
+						['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'show_calendar_name',
+			[
+				'label' => __( 'Kalendername', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						[
+							'relation' => 'and',
+							'terms' => [
+								['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+								['name' => 'view_list', 'operator' => '!==', 'value' => 'minimal'],
+							],
+						],
+						['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'show_month_separator',
+			[
+				'label' => __( 'Monatstrenner', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'condition' => [
+					'view_type' => 'list',
+				],
+			]
+		);
+
+		$this->add_control(
+			'show_services',
+			[
+				'label' => __( 'Services', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'no',
+				'conditions' => [
+					'relation' => 'or',
+					'terms' => [
+						[
+							'relation' => 'and',
+							'terms' => [
+								['name' => 'view_type', 'operator' => '===', 'value' => 'list'],
+								['name' => 'view_list', 'operator' => '!==', 'value' => 'minimal'],
+							],
+						],
+						['name' => 'view_type', 'operator' => '===', 'value' => 'grid'],
+					],
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		// =========================
+		// Style Section
+		// =========================
+		$this->start_controls_section(
+			'style_section',
+			[
+				'label' => __( 'Stil', 'churchtools-suite' ),
+				'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_control(
+			'style_mode',
+			[
 				'label' => __( 'Style-Modus', 'churchtools-suite' ),
 				'type' => \Elementor\Controls_Manager::SELECT,
 				'options' => [
@@ -363,118 +448,118 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			]
 		);
 
-			$this->add_control(
-				'use_calendar_colors',
-				[
-					'label' => __( 'Kalenderfarben verwenden', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::SWITCHER,
-					'label_on' => __( 'Ja', 'churchtools-suite' ),
-					'label_off' => __( 'Nein', 'churchtools-suite' ),
-					'default' => 'no',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'use_calendar_colors',
+			[
+				'label' => __( 'Kalenderfarben verwenden', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'no',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_primary_color',
-				[
-					'label' => __( 'Primärfarbe', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::COLOR,
-					'default' => '#2563eb',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_primary_color',
+			[
+				'label' => __( 'Primärfarbe', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '#2563eb',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_text_color',
-				[
-					'label' => __( 'Textfarbe', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::COLOR,
-					'default' => '#1e293b',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_text_color',
+			[
+				'label' => __( 'Textfarbe', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '#1e293b',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_background_color',
-				[
-					'label' => __( 'Hintergrundfarbe', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::COLOR,
-					'default' => '#ffffff',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_background_color',
+			[
+				'label' => __( 'Hintergrundfarbe', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '#ffffff',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_border_radius',
-				[
-					'label' => __( 'Border Radius', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::NUMBER,
-					'default' => 6,
-					'min' => 0,
-					'max' => 50,
-					'unit' => 'px',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_border_radius',
+			[
+				'label' => __( 'Border Radius', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'default' => 6,
+				'min' => 0,
+				'max' => 50,
+				'unit' => 'px',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_font_size',
-				[
-					'label' => __( 'Schriftgröße', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::NUMBER,
-					'default' => 14,
-					'min' => 10,
-					'max' => 32,
-					'unit' => 'px',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_font_size',
+			[
+				'label' => __( 'Schriftgröße', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'default' => 14,
+				'min' => 10,
+				'max' => 32,
+				'unit' => 'px',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_padding',
-				[
-					'label' => __( 'Padding', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::NUMBER,
-					'default' => 12,
-					'min' => 0,
-					'max' => 50,
-					'unit' => 'px',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_padding',
+			[
+				'label' => __( 'Padding', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'default' => 12,
+				'min' => 0,
+				'max' => 50,
+				'unit' => 'px',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->add_control(
-				'custom_spacing',
-				[
-					'label' => __( 'Abstände', 'churchtools-suite' ),
-					'type' => \Elementor\Controls_Manager::NUMBER,
-					'default' => 8,
-					'min' => 0,
-					'max' => 50,
-					'unit' => 'px',
-					'condition' => [
-						'style_mode' => 'custom',
-					],
-				]
-			);
+		$this->add_control(
+			'custom_spacing',
+			[
+				'label' => __( 'Abstände', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'default' => 8,
+				'min' => 0,
+				'max' => 50,
+				'unit' => 'px',
+				'condition' => [
+					'style_mode' => 'custom',
+				],
+			]
+		);
 
-			$this->end_controls_section();
-		}
+		$this->end_controls_section();
+	}
 
 		/**
 		 * Render widget
