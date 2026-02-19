@@ -75,7 +75,7 @@
 	function setupEventControl() {
 		elementor.hooks.addAction('panel/open_editor/widget', function(panel, model, view) {
 			// Only for our widget
-			if (model.get('widgetType') !== 'cts-events') {
+			if (model.get('widgetType') !== 'churchtools_suite_events') {
 				return;
 			}
 			
