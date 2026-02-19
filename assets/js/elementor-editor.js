@@ -122,10 +122,8 @@
 			
 			console.log('[CTS Elementor] ChurchTools Events widget panel opened');
 			
-			// Wait for controls to render
-			setTimeout(function() {
-				populateControlsInPanel(panel, model);
-			}, 100);
+			// Setup event filtering (handles conditional control rendering)
+			setupEventFiltering(panel, model);
 		});
 		
 		// Hook 2: Alternative - try to populate on widget render
