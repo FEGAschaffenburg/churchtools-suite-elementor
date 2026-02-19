@@ -136,53 +136,64 @@
 	}
 	
 	/**
-	 * Populate controls in the panel
+	 * Setup event filtering for a widget
 	 */
-	function populateControlsInPanel(panel, model) {
-		console.log('[CTS Elementor] populateControlsInPanel() called');
+	function setupEventFiltering(panel, model) {
+		console.log('[CTS Elementor] setupEventFiltering() called');
 		
-		var controlsView = panel.getCurrentPageView();
+		var settings = model.get('settings');
 		
-		if (!controlsView || !controlsView.children) {
-			console.warn('[CTS Elementor] Controls view not ready');
-			// Retry after a short delay
-			setTimeout(function() {
-				populateControlsInPanel(panel, model);
-			}, 200);
-			return;
-		}
+		// Function to find and setup event_id control
+		var setupEventIdControl = function() {
+			console.log('[CTS Elementor] Searching for event_id control...');
+			
+			var controlsView = panel.getCurrentPageView();
+			
+			if (!controlsView || !controlsView.children) {
+				console.warn('[CTS Elementor] Controls view not ready, retrying...');
+				setTimeout(setupEventIdControl, 200);
+				return;
+			}
+			
+			// Find event_id control
+			var eventIdControl = null;
+			controlsView.children.each(function(controlView) {
+				var controlName = controlView.model.get('name');
+				if (controlName === 'event_id') {
+					eventIdControl = controlView;
+				}
+			});
+			
+			if (!eventIdControl) {
+				console.log('[CTS Elementor] event_id control not found (probably conditional and not visible yet)');
+				return;
+			}
+			
+			console.log('[CTS Elementor] ✓ Found event_id control, setting up filters...');
+			
+			// Get current filter values
+			var calendarsValue = settings.get('calendars');
+			var tagsValue = settings.get('tags');
+			
+			console.log('[CTS Elementor] Current filters - Calendars:', calendarsValue, 'Tags:', tagsValue);
+			
+			// Initial population
+			populateEventOptions(eventIdControl, calendarsValue, tagsValue);
+		};
 		
-		console.log('[CTS Elementor] Controls view ready, searching for event_id control...');
-		
-		// Find event_id control
-		var eventIdControl = null;
-		controlsView.children.each(function(controlView) {
-			var controlName = controlView.model.get('name');
-			console.log('[CTS Elementor] Found control:', controlName);
-			if (controlName === 'event_id') {
-				eventIdControl = controlView;
+		// Listen to view_type changes (event_id control appears when view_type = countdown)
+		settings.on('change:view_type', function() {
+			var viewType = settings.get('view_type');
+			console.log('[CTS Elementor] View type changed to:', viewType);
+			
+			if (viewType === 'countdown') {
+				console.log('[CTS Elementor] Countdown view activated, searching for event_id control...');
+				// Wait a bit for Elementor to render the conditional control
+				setTimeout(setupEventIdControl, 300);
 			}
 		});
 		
-		if (!eventIdControl) {
-			console.warn('[CTS Elementor] event_id control not found in panel');
-			console.log('[CTS Elementor] Available controls:', controlsView.children.length);
-			return;
-		}
-		
-		console.log('[CTS Elementor] ✓ Found event_id control, setting up...');
-		
-		// Get settings
-		var settings = model.get('settings');
-		var calendarsValue = settings.get('calendars');
-		var tagsValue = settings.get('tags');
-		
-		console.log('[CTS Elementor] Initial filters - Calendars:', calendarsValue, 'Tags:', tagsValue);
-		
-		// Initial population
-		populateEventOptions(eventIdControl, calendarsValue, tagsValue);
-		
-		// Remove old listeners to prevent duplicates
+		// Remove old filter listeners to prevent duplicates
 		settings.off('change:calendars change:tags');
 		
 		// Listen to calendar/tag changes
@@ -193,11 +204,26 @@
 			console.log('[CTS Elementor] New Calendars:', newCalendars);
 			console.log('[CTS Elementor] New Tags:', newTags);
 			
-			// Re-populate with new filters
-			populateEventOptions(eventIdControl, newCalendars, newTags);
+			// Find event_id control and update it
+			var controlsView = panel.getCurrentPageView();
+			if (controlsView && controlsView.children) {
+				controlsView.children.each(function(controlView) {
+					if (controlView.model.get('name') === 'event_id') {
+						console.log('[CTS Elementor] Updating event_id control with new filters...');
+						populateEventOptions(controlView, newCalendars, newTags);
+					}
+				});
+			}
 		});
 		
-		console.log('[CTS Elementor] ✓ Filter change listeners attached');
+		console.log('[CTS Elementor] ✓ Event filtering setup complete');
+		
+		// If view_type is already countdown, setup immediately
+		var currentViewType = settings.get('view_type');
+		if (currentViewType === 'countdown') {
+			console.log('[CTS Elementor] Already in countdown view, setting up immediately...');
+			setTimeout(setupEventIdControl, 300);
+		}
 	}
 	
 	// Initialize when Elementor is ready
