@@ -16,6 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class CTS_Elementor_Integration {
 
 	/**
+	 * Prevent multiple initialization
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
 	 * Log helper (persists to option + error_log)
 	 */
 	public static function log( string $message ): void {
@@ -41,6 +47,13 @@ class CTS_Elementor_Integration {
 	 * @since 0.5.0
 	 */
 	public static function init() {
+		// Prevent multiple initialization
+		if ( self::$initialized ) {
+			self::log( '[CTS Elementor] SKIPPED: Already initialized' );
+			return;
+		}
+		
+		self::$initialized = true;
 		self::log( '[CTS Elementor] Integration init() called' );
 		
 		// Register widget hooks only (editor scripts registered earlier in main plugin file)
