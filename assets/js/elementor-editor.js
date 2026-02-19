@@ -64,67 +64,89 @@
 			options[event.value] = event.label;
 		});
 		
+		console.log('[CTS Elementor] Built options object:', options);
+		
 		// Update control model
+		console.log('[CTS Elementor] Updating control options...');
 		controlView.model.set('options', options);
 		
 		// Re-render control
+		console.log('[CTS Elementor] Re-rendering control...');
 		controlView.render();
+		
+		console.log('[CTS Elementor] Control update complete');
 	}
 	
 	/**
 	 * Setup event control population when panel opens
 	 */
 	function setupEventControl() {
+		// Hook 1: When widget is added to canvas
 		elementor.hooks.addAction('panel/open_editor/widget', function(panel, model, view) {
-			console.log('[CTS Elementor] Widget opened, type:', model.get('widgetType'));
+			console.log('[CTS Elementor] Widget panel opened, type:', model.get('widgetType'));
 			
 			// Only for our widget
 			if (model.get('widgetType') !== 'churchtools_suite_events') {
 				return;
 			}
 			
-			console.log('[CTS Elementor] ChurchTools Events widget opened');
+			console.log('[CTS Elementor] ChurchTools Events widget panel opened');
 			
 			// Wait for controls to render
 			setTimeout(function() {
-				var controlsView = panel.getCurrentPageView();
-				
-				if (!controlsView || !controlsView.children) {
-					return;
-				}
-				
-				// Find event_id control
-				var eventIdControl = null;
-				controlsView.children.each(function(controlView) {
-					if (controlView.model.get('name') === 'event_id') {
-						eventIdControl = controlView;
-					}
-				});
-				
-				if (!eventIdControl) {
-					console.warn('[CTS Elementor] event_id control not found');
-					return;
-				}
-				
-				console.log('[CTS Elementor] Found event_id control');
-				
-				// Get settings
-				var settings = model.get('settings');
-				var calendarsValue = settings.get('calendars');
-				var tagsValue = settings.get('tags');
-				
-				// Initial population
-				populateEventOptions(eventIdControl, calendarsValue, tagsValue);
-				
-				// Listen to calendar/tag changes
-				settings.on('change:calendars change:tags', function() {
-					console.log('[CTS Elementor] Calendar/Tags changed, re-filtering events');
-					var newCalendars = settings.get('calendars');
-					var newTags = settings.get('tags');
-					populateEventOptions(eventIdControl, newCalendars, newTags);
-				});
-				
+				populateControlsInPanel(panel, model);
 			}, 100);
+		});
+		
+		// Hook 2: Alternative - try to populate on widget render
+		elementor.on('preview:loaded', function() {
+			console.log('[CTS Elementor] Preview loaded, checking for widgets');
+			// This runs after the preview iframe is ready
+		});
+	}
+	
+	/**
+	 * Populate controls in the panel
+	 */
+	function populateControlsInPanel(panel, model) {
+		var controlsView = panel.getCurrentPageView();
+		
+		if (!controlsView || !controlsView.children) {
+			console.warn('[CTS Elementor] Controls view not ready');
+			return;
+		}
+		
+		// Find event_id control
+		var eventIdControl = null;
+		controlsView.children.each(function(controlView) {
+			if (controlView.model.get('name') === 'event_id') {
+				eventIdControl = controlView;
+			}
+		});
+		
+		if (!eventIdControl) {
+			console.warn('[CTS Elementor] event_id control not found in panel');
+			return;
+		}
+		
+		console.log('[CTS Elementor] Found event_id control, populating...');
+		
+		// Get settings
+		var settings = model.get('settings');
+		var calendarsValue = settings.get('calendars');
+		var tagsValue = settings.get('tags');
+		
+		console.log('[CTS Elementor] Current filters - Calendars:', calendarsValue, 'Tags:', tagsValue);
+		
+		// Initial population
+		populateEventOptions(eventIdControl, calendarsValue, tagsValue);
+		
+		// Listen to calendar/tag changes
+		settings.on('change:calendars change:tags', function() {
+			console.log('[CTS Elementor] Calendar/Tags changed, re-filtering events');
+			var newCalendars = settings.get('calendars');
+			var newTags = settings.get('tags');
+			populateEventOptions(eventIdControl, newCalendars, newTags);
 		});
 	}
 	

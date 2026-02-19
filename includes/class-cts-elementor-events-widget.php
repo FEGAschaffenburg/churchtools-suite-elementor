@@ -314,14 +314,12 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 				[
 					'label' => __( 'Event-Auswahl', 'churchtools-suite' ),
 					'type' => \Elementor\Controls_Manager::SELECT2,
-					'options' => [
-						'0' => __( 'Nächstes Event (automatisch)', 'churchtools-suite' ),
-					],
+					'options' => $this->get_events_options(),
 					'default' => '0',
 					'condition' => [
 						'view_type' => 'countdown',
 					],
-					'description' => __( 'Ereignis wird dynamisch geladen basierend auf Kalender/Tags-Filter', 'churchtools-suite' ),
+					'description' => __( 'Wähle ein spezifisches Event oder lass es automatisch', 'churchtools-suite' ),
 				]
 			);
 
@@ -861,65 +859,51 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		 * @return array Event options
 		 */
 		private function get_events_options() {
+			// Check cache first (5 minute transient)
+			$cache_key = 'cts_elementor_events_options';
+			$cached = get_transient( $cache_key );
+			
+			if ( false !== $cached && is_array( $cached ) ) {
+				return $cached;
+			}
+			
 			$options = [
 				'0' => __( 'Nächstes Event (automatisch)', 'churchtools-suite' ),
 			];
 
 			// Try to load events from database
-			if ( ! class_exists( 'ChurchTools_Suite_Template_Data' ) ) {
-				require_once CHURCHTOOLS_SUITE_PATH . 'includes/services/class-churchtools-suite-template-data.php';
+			if ( ! class_exists( 'ChurchTools_Suite_Events_Repository' ) ) {
+				require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-base.php';
+				require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-events-repository.php';
 			}
 
-			if ( ! class_exists( 'ChurchTools_Suite_Template_Data' ) ) {
+			if ( ! class_exists( 'ChurchTools_Suite_Events_Repository' ) ) {
 				return $options;
 			}
 
 			try {
-				$template_data = new ChurchTools_Suite_Template_Data();
+				$events_repo = new ChurchTools_Suite_Events_Repository();
+				$upcoming_events = $events_repo->get_upcoming( 50 ); // Next 50 events
 				
-				// Get current widget settings
-				$settings = $this->get_settings_for_display();
-				$calendar_ids = [];
-				$filter_tags = [];
-				
-				if ( is_array( $settings ) ) {
-					$calendar_ids = $settings['calendars'] ?? [];
-					$filter_tags = $settings['tags'] ?? [];
-				}
-
-				// Build filter array
-				$filters = [
-					'limit' => 50,
-					'show_past_events' => true, // Show ALL events for selection
-				];
-				
-				// Only add calendar filter if specified
-				if ( ! empty( $calendar_ids ) && is_array( $calendar_ids ) ) {
-					$filters['calendar_ids'] = $calendar_ids;
-				}
-				
-				// Only add tag filter if specified
-				if ( ! empty( $filter_tags ) && is_array( $filter_tags ) ) {
-					$filters['filter_tags'] = $filter_tags;
-				}
-				
-				$events = $template_data->get_events( $filters );
-
-				// Process events into dropdown options
-				if ( is_array( $events ) && ! empty( $events ) ) {
-					foreach ( $events as $event ) {
-						$id = $event['id'] ?? $event['event_id'] ?? null;
-						if ( empty( $id ) ) {
-							continue;
+				if ( ! empty( $upcoming_events ) ) {
+					foreach ( $upcoming_events as $event ) {
+						$date_format = get_option( 'date_format', 'd.m.Y' );
+						$event_date = '';
+						
+						if ( ! empty( $event->start_datetime ) ) {
+							$event_date = get_date_from_gmt( $event->start_datetime, $date_format ) . ' - ';
 						}
-						$title = $event['title'] ?? __( 'Unbenannt', 'churchtools-suite' );
-						$date = $event['start_date'] ?? '';
-						$label = $date ? $date . ' - ' . $title : $title;
-						$options[ (string) $id ] = $label;
+						
+						$event_id = (int) ( $event->event_id ?: $event->appointment_id );
+						$options[ (string) $event_id ] = $event_date . $event->title;
 					}
 				}
+				
+				// Cache for 5 minutes
+				set_transient( $cache_key, $options, 5 * MINUTE_IN_SECONDS );
+				
 			} catch ( Exception $e ) {
-				// On error, return only auto option
+				// On error, return only auto option (don't cache errors)
 				return $options;
 			}
 
