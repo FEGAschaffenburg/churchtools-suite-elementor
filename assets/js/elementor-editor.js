@@ -10,6 +10,8 @@
 (function($) {
 	'use strict';
 	
+	console.log('[CTS Elementor] Script loaded');
+	
 	/**
 	 * Populate event_id control options
 	 */
@@ -74,6 +76,8 @@
 	 */
 	function setupEventControl() {
 		elementor.hooks.addAction('panel/open_editor/widget', function(panel, model, view) {
+			console.log('[CTS Elementor] Widget opened, type:', model.get('widgetType'));
+			
 			// Only for our widget
 			if (model.get('widgetType') !== 'churchtools_suite_events') {
 				return;
@@ -127,6 +131,10 @@
 	// Initialize when Elementor is ready
 	$(window).on('elementor:init', function() {
 		console.log('[CTS Elementor] Elementor initialized, setting up event control');
+		console.log('[CTS Elementor] ctsElementorData available:', typeof ctsElementorData !== 'undefined');
+		if (typeof ctsElementorData !== 'undefined') {
+			console.log('[CTS Elementor] Events loaded:', ctsElementorData.events ? ctsElementorData.events.length : 0);
+		}
 		setupEventControl();
 	});
 	
