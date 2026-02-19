@@ -314,14 +314,10 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 				[
 					'label' => __( 'Event-Auswahl', 'churchtools-suite' ),
 					'type' => \Elementor\Controls_Manager::SELECT2,
-					'options' => [
-						'0' => __( 'Nächstes Event (automatisch)', 'churchtools-suite' ),
-					],
-					'default' => '0',
-					'condition' => [
-						'view_type' => 'countdown',
-					],
-					'description' => __( 'Ereignis wird dynamisch geladen basierend auf Kalender/Tags-Filter', 'churchtools-suite' ),
+				'options' => [
+					'0' => __( 'Nächstes Event (automatisch)', 'churchtools-suite' ),
+				],
+					'description' => __( '— wird automatisch geladen —', 'churchtools-suite' ),
 				]
 			);
 
