@@ -60,6 +60,7 @@ New-Item -ItemType Directory -Path $buildPluginDir | Out-Null
 
 # Files and folders to include
 $includes = @(
+    'assets',
     'includes',
     'churchtools-suite-elementor.php',
     'README.md',
