@@ -891,7 +891,9 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 						$event_date = '';
 						
 						if ( ! empty( $event->start_datetime ) ) {
-							$event_date = get_date_from_gmt( $event->start_datetime, $date_format ) . ' - ';
+							// Convert to timestamp for wp_date (which handles locale)
+							$timestamp = strtotime( get_date_from_gmt( $event->start_datetime, 'Y-m-d H:i:s' ) );
+							$event_date = wp_date( $date_format, $timestamp ) . ' - ';
 						}
 						
 						$event_id = (int) ( $event->event_id ?: $event->appointment_id );
