@@ -66,7 +66,13 @@ add_action( 'plugins_loaded', function() {
 		return;
 	}
 	
-	// 4. All dependencies met - Initialize immediately or hook into ChurchTools Suite
+	// 4. Load integration class early for editor scripts
+	require_once CTS_ELEMENTOR_PATH . 'includes/class-cts-elementor-integration.php';
+	
+	// 5. Register editor scripts hook IMMEDIATELY (before Elementor Editor loads)
+	add_action( 'elementor/editor/before_enqueue_scripts', [ 'CTS_Elementor_Integration', 'enqueue_editor_scripts' ] );
+	
+	// 6. Initialize widget registration via normal hook
 	// If churchtools_suite_loaded already fired, initialize now. Otherwise, hook in.
 	if ( did_action( 'churchtools_suite_loaded' ) ) {
 		// Hook already fired - initialize immediately
@@ -93,10 +99,9 @@ add_action( 'plugins_loaded', function() {
  * @since 0.5.0
  */
 function cts_elementor_init( $plugin = null ) {
-	// Load integration class
-	require_once CTS_ELEMENTOR_PATH . 'includes/class-cts-elementor-integration.php';
+	// Integration class already loaded in plugins_loaded
 	
-	// Initialize widget registration
+	// Initialize widget registration (categories + widgets)
 	CTS_Elementor_Integration::init();
 	
 	// Log initialization (if logger available)

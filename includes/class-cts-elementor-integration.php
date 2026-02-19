@@ -43,10 +43,9 @@ class CTS_Elementor_Integration {
 	public static function init() {
 		self::log( '[CTS Elementor] Integration init() called' );
 		
-		// Register hooks
+		// Register widget hooks only (editor scripts registered earlier in main plugin file)
 		add_action( 'elementor/elements/categories_registered', [ __CLASS__, 'register_category' ], 10, 1 );
 		add_action( 'elementor/widgets/register', [ __CLASS__, 'register_widget' ], 10, 1 );
-		add_action( 'elementor/editor/before_enqueue_scripts', [ __CLASS__, 'enqueue_editor_scripts' ] );
 		self::log( '[CTS Elementor] Hooks registered' );
 	}
 	
@@ -184,3 +183,13 @@ class CTS_Elementor_Integration {
 		self::log( '[CTS Elementor] Editor script enqueued with ' . count( $event_options ) . ' events' );
 	}
 }
+
+// AJAX handler for clearing logs
+add_action('wp_ajax_cts_elementor_clear_logs', function() {
+	check_ajax_referer('cts_elementor_clear_logs', 'nonce');
+	if (!current_user_can('manage_options')) {
+		wp_die('Unauthorized');
+	}
+	delete_option('cts_elementor_log');
+	wp_send_json_success();
+});
