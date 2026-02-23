@@ -580,9 +580,11 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			'use_calendar_colors',
 			[
 				'label' => __( 'Kalenderfarben verwenden', 'churchtools-suite' ),
-				'type' => \Elementor\Controls_Manager::SWITCHER,
-				'label_on' => __( 'Ja', 'churchtools-suite' ),
-				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'options' => [
+					'no' => __( 'Nein', 'churchtools-suite' ),
+					'yes' => __( 'Ja', 'churchtools-suite' ),
+				],
 				'default' => 'no',
 				'description' => __( 'Nutzt die Farbe des jeweiligen Kalenders als Akzentfarbe (unabhängig vom Style-Modus).', 'churchtools-suite' ),
 			]
