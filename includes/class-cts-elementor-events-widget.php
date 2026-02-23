@@ -584,9 +584,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 				'label_on' => __( 'Ja', 'churchtools-suite' ),
 				'label_off' => __( 'Nein', 'churchtools-suite' ),
 				'default' => 'no',
-				'condition' => [
-					'style_mode' => 'custom',
-				],
+				'description' => __( 'Nutzt die Farbe des jeweiligen Kalenders als Akzentfarbe (unabhängig vom Style-Modus).', 'churchtools-suite' ),
 			]
 		);
 
