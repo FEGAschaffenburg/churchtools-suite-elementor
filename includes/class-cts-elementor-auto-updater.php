@@ -18,6 +18,33 @@ class CTS_Elementor_Auto_Updater {
 	const PLUGIN_SLUG = 'churchtools-suite-elementor';
 	const PLUGIN_FILE = 'churchtools-suite-elementor/churchtools-suite-elementor.php';
 
+	/**
+	 * Resolve active plugin file key used by WordPress update transient.
+	 * Supports renamed plugin folder installations.
+	 *
+	 * @param object $transient Update transient object
+	 * @return string
+	 */
+	private static function resolve_plugin_file( $transient ): string {
+		$default = defined( 'CTS_ELEMENTOR_BASENAME' ) ? CTS_ELEMENTOR_BASENAME : self::PLUGIN_FILE;
+
+		if ( ! is_object( $transient ) || empty( $transient->checked ) || ! is_array( $transient->checked ) ) {
+			return $default;
+		}
+
+		if ( isset( $transient->checked[ $default ] ) ) {
+			return $default;
+		}
+
+		foreach ( array_keys( $transient->checked ) as $plugin_file ) {
+			if ( is_string( $plugin_file ) && preg_match( '#/churchtools-suite-elementor\.php$#', $plugin_file ) ) {
+				return $plugin_file;
+			}
+		}
+
+		return $default;
+	}
+
 	public static function init(): void {
 		// Offer update info to WordPress update API
 		add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'push_update_to_transient' ] );
@@ -106,24 +133,26 @@ class CTS_Elementor_Auto_Updater {
 			return $transient;
 		}
 
+		$plugin_file = self::resolve_plugin_file( $transient );
+
 		$release = self::get_latest_release_info();
 		if ( is_wp_error( $release ) ) {
 			return $transient;
 		}
 
-		$current_version = $transient->checked[ self::PLUGIN_FILE ] ?? CTS_ELEMENTOR_VERSION;
+		$current_version = $transient->checked[ $plugin_file ] ?? CTS_ELEMENTOR_VERSION;
 		$current_version = ltrim( trim( (string) $current_version ), 'vV' );
 		$latest_version = ltrim( trim( (string) ( $release['version'] ?? '' ) ), 'vV' );
 
 		if ( $latest_version === '' ) {
-			unset( $transient->response[ self::PLUGIN_FILE ] );
+			unset( $transient->response[ $plugin_file ] );
 			return $transient;
 		}
 
 		if ( version_compare( $latest_version, $current_version, '>' ) ) {
 			$plugin_data = [
 				'slug'        => self::PLUGIN_SLUG,
-				'plugin'      => self::PLUGIN_FILE,
+				'plugin'      => $plugin_file,
 				'new_version' => $latest_version,
 				'url'         => $release['html_url'],
 				'package'     => $release['zip_url'],
@@ -131,12 +160,12 @@ class CTS_Elementor_Auto_Updater {
 				'requires_php' => '8.0',
 			];
 
-			$transient->response[ self::PLUGIN_FILE ] = (object) $plugin_data;
+			$transient->response[ $plugin_file ] = (object) $plugin_data;
 		} else {
-			unset( $transient->response[ self::PLUGIN_FILE ] );
-			$transient->no_update[ self::PLUGIN_FILE ] = (object) [
+			unset( $transient->response[ $plugin_file ] );
+			$transient->no_update[ $plugin_file ] = (object) [
 				'slug'        => self::PLUGIN_SLUG,
-				'plugin'      => self::PLUGIN_FILE,
+				'plugin'      => $plugin_file,
 				'new_version' => $current_version,
 				'url'         => $release['html_url'],
 				'package'     => '',
