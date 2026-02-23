@@ -21,6 +21,7 @@ class CTS_Elementor_Auto_Updater {
 	public static function init(): void {
 		// Offer update info to WordPress update API
 		add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'push_update_to_transient' ] );
+		add_filter( 'site_transient_update_plugins', [ __CLASS__, 'push_update_to_transient' ] );
 		
 		// Provide plugin information for update modal
 		add_filter( 'plugins_api', [ __CLASS__, 'plugins_api_filter' ], 10, 3 );
@@ -110,8 +111,14 @@ class CTS_Elementor_Auto_Updater {
 			return $transient;
 		}
 
-		$current_version = CTS_ELEMENTOR_VERSION;
-		$latest_version = $release['version'];
+		$current_version = $transient->checked[ self::PLUGIN_FILE ] ?? CTS_ELEMENTOR_VERSION;
+		$current_version = ltrim( trim( (string) $current_version ), 'vV' );
+		$latest_version = ltrim( trim( (string) ( $release['version'] ?? '' ) ), 'vV' );
+
+		if ( $latest_version === '' ) {
+			unset( $transient->response[ self::PLUGIN_FILE ] );
+			return $transient;
+		}
 
 		if ( version_compare( $latest_version, $current_version, '>' ) ) {
 			$plugin_data = [
@@ -125,6 +132,15 @@ class CTS_Elementor_Auto_Updater {
 			];
 
 			$transient->response[ self::PLUGIN_FILE ] = (object) $plugin_data;
+		} else {
+			unset( $transient->response[ self::PLUGIN_FILE ] );
+			$transient->no_update[ self::PLUGIN_FILE ] = (object) [
+				'slug'        => self::PLUGIN_SLUG,
+				'plugin'      => self::PLUGIN_FILE,
+				'new_version' => $current_version,
+				'url'         => $release['html_url'],
+				'package'     => '',
+			];
 		}
 
 		return $transient;
