@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CTS_Elementor_Auto_Updater {
 
-	const GITHUB_API_RELEASES_LATEST = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite-elementor/releases/latest';
+	const GITHUB_API_RELEASES_LATEST = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/releases/latest';
 	const PLUGIN_SLUG = 'churchtools-suite-elementor';
 	const PLUGIN_FILE = 'churchtools-suite-elementor/churchtools-suite-elementor.php';
 
@@ -52,6 +52,20 @@ class CTS_Elementor_Auto_Updater {
 		
 		// Provide plugin information for update modal
 		add_filter( 'plugins_api', [ __CLASS__, 'plugins_api_filter' ], 10, 3 );
+
+		// Force refresh when opening Plugins / Updates screens to avoid stale cache.
+		add_action( 'load-plugins.php', [ __CLASS__, 'force_cache_refresh' ] );
+		add_action( 'load-update-core.php', [ __CLASS__, 'force_cache_refresh' ] );
+	}
+
+	/**
+	 * Force refresh updater caches so WordPress requests fresh release metadata.
+	 */
+	public static function force_cache_refresh(): void {
+		self::clear_cache();
+		delete_site_transient( 'update_plugins' );
+		wp_clean_plugins_cache();
+		wp_update_plugins();
 	}
 
 	/**
@@ -91,12 +105,22 @@ class CTS_Elementor_Auto_Updater {
 			return new WP_Error( 'no_tag', 'No tag_name in GitHub response' );
 		}
 
-		// Find ZIP asset
+		// Find ZIP asset for Elementor addon inside monorepo release assets
 		$zip_url = '';
+		$asset_version = '';
 		if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
 			foreach ( $data['assets'] as $asset ) {
-				if ( isset( $asset['browser_download_url'] ) && strpos( $asset['name'], '.zip' ) !== false ) {
+				if (
+					isset( $asset['browser_download_url'] )
+					&& ! empty( $asset['name'] )
+					&& strpos( $asset['name'], 'churchtools-suite-elementor-' ) === 0
+					&& strpos( $asset['name'], '.zip' ) !== false
+				) {
 					$zip_url = $asset['browser_download_url'];
+
+					if ( preg_match( '/^churchtools-suite-elementor-(.+)\.zip$/i', (string) $asset['name'], $matches ) ) {
+						$asset_version = ltrim( (string) $matches[1], 'vV' );
+					}
 					break;
 				}
 			}
@@ -106,9 +130,11 @@ class CTS_Elementor_Auto_Updater {
 			return new WP_Error( 'no_zip', 'No ZIP asset found in release' );
 		}
 
+		$resolved_version = $asset_version !== '' ? $asset_version : ltrim( (string) $data['tag_name'], 'vV' );
+
 		$info = [
 			'tag_name'       => $data['tag_name'],
-			'version'        => ltrim( $data['tag_name'], 'v' ),
+			'version'        => $resolved_version,
 			'zip_url'        => $zip_url,
 			'html_url'       => $data['html_url'] ?? '',
 			'name'           => $data['name'] ?? $data['tag_name'],
@@ -202,7 +228,7 @@ class CTS_Elementor_Auto_Updater {
 			'slug'          => self::PLUGIN_SLUG,
 			'version'       => $release['version'],
 			'author'        => '<a href="https://feg-aschaffenburg.de">FEG Aschaffenburg</a>',
-			'homepage'      => 'https://github.com/FEGAschaffenburg/churchtools-suite-elementor',
+			'homepage'      => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor',
 			'requires'      => '6.0',
 			'tested'        => '6.7',
 			'requires_php'  => '8.0',

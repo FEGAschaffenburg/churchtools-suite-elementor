@@ -102,6 +102,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 					'label' => __( 'Template', 'churchtools-suite' ),
 					'type' => \Elementor\Controls_Manager::SELECT,
 					'options' => [
+						'simple' => __( 'Einfach', 'churchtools-suite' ),
 						'classic' => __( 'Klassisch', 'churchtools-suite' ),
 						'classic-with-images' => __( 'Klassisch mit Bildern', 'churchtools-suite' ),
 						'minimal' => __( 'Minimal', 'churchtools-suite' ),
@@ -164,6 +165,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 					'type' => \Elementor\Controls_Manager::SELECT,
 					'options' => [
 						'carousel-klassisch' => __( 'Klassisch (Swipe)', 'churchtools-suite' ),
+						'carousel-einzel-event' => __( 'Einzel Event (Hero Slider)', 'churchtools-suite' ),
 					],
 					'default' => 'carousel-klassisch',
 					'condition' => [ 'view_type' => 'carousel' ],
@@ -459,6 +461,21 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		);
 
 		$this->add_control(
+			'show_title',
+			[
+				'label' => __( 'Titel anzeigen (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+			]
+		);
+
+		$this->add_control(
 			'show_images',
 			[
 				'label' => __( 'Bilder', 'churchtools-suite' ),
@@ -525,6 +542,21 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		);
 
 		$this->add_control(
+			'show_filter',
+			[
+				'label' => __( 'Filter im Frontend anzeigen', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'no',
+				'condition' => [
+					'view_type' => 'list',
+				],
+				'description' => __( 'Blendet oberhalb der Event-Liste Kalender- und Tag-Filter ein.', 'churchtools-suite' ),
+			]
+		);
+
+		$this->add_control(
 			'show_services',
 			[
 				'label' => __( 'Services', 'churchtools-suite' ),
@@ -573,6 +605,90 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 				],
 				'default' => 'plugin',
 				'description' => __( 'Plugin-Styles = eigene Farbpalette, Theme-Styles = Theme-Farben (inherit), Individuelle Styles = eigene Farben definieren', 'churchtools-suite' ),
+			]
+		);
+
+		$this->add_control(
+			'style_media_heading',
+			[
+				'label' => __( 'Bild & Hero', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'image_fit',
+			[
+				'label' => __( 'Bilddarstellung', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'options' => [
+					'cover' => __( 'Zuschneiden (Cover)', 'churchtools-suite' ),
+					'contain' => __( 'Ganzes Bild (Contain)', 'churchtools-suite' ),
+				],
+				'default' => 'cover',
+				'condition' => [
+					'show_images' => 'yes',
+				],
+				'description' => __( 'Contain zeigt das komplette Bild mit ggf. freien Flächen.', 'churchtools-suite' ),
+			]
+		);
+
+		$this->add_control(
+			'hero_title_font_size',
+			[
+				'label' => __( 'Titel-Schriftgröße (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'default' => 0,
+				'min' => 0,
+				'max' => 120,
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+				'description' => __( '0 = automatisch (responsive). Sonst feste Pixelgröße.', 'churchtools-suite' ),
+			]
+		);
+
+		$this->add_control(
+			'hero_layout_preset',
+			[
+				'label' => __( 'Bild/Höhen-Preset (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'options' => [
+					'compact' => __( 'Kompakt', 'churchtools-suite' ),
+					'standard' => __( 'Standard', 'churchtools-suite' ),
+					'hero' => __( 'Hero', 'churchtools-suite' ),
+				],
+				'default' => 'standard',
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+			]
+		);
+
+		$this->add_control(
+			'hero_mobile_optimize',
+			[
+				'label' => __( 'Mobile-Optimierung (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+			]
+		);
+
+		$this->add_control(
+			'style_theme_heading',
+			[
+				'label' => __( 'Farben & Layout', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
 			]
 		);
 
@@ -686,6 +802,29 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			]
 		);
 
+		// v1.3.0: Custom CSS Section
+		$this->add_control(
+			'custom_css_heading',
+			[
+				'label' => __( 'Benutzerdefiniertes CSS', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'custom_css',
+			[
+				'label' => __( 'CSS', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::CODE,
+				'language' => 'css',
+				'rows' => 12,
+				'default' => '',
+				'description' => __( 'Geben Sie beliebiges CSS ein. Es wird auf diese Widget-Instanz beschränkt.', 'churchtools-suite' ),
+				'separator' => 'before',
+			]
+		);
+
 		$this->end_controls_section();
 	}
 
@@ -695,15 +834,14 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		// If a single event is requested via URL, render single view
+			// If a single event is requested via URL, always render single view.
+			// This keeps deep-links working on Elementor pages independent of widget click mode.
 		$event_id = isset( $_GET['event_id'] ) ? absint( $_GET['event_id'] ) : 0;
 		if ( $event_id > 0 ) {
-			$event_action = isset( $settings['event_action'] ) ? $settings['event_action'] : 'modal';
-			// Only switch to page view when configured for page navigation
-			if ( $event_action === 'page' ) {
-				echo do_shortcode( '[cts_event id="' . $event_id . '"]' );
+				$template = isset( $_GET['template'] ) ? sanitize_key( wp_unslash( $_GET['template'] ) ) : '';
+			require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-single-event-handler.php';
+			echo ChurchTools_Suite_Single_Event_Handler::render_single_event_page( $event_id, $template );
 				return;
-			}
 		}
 
 		// Determine selected view based on type
@@ -728,19 +866,25 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		// Build shortcode attributes
 		$atts = [
 			'view' => $selected_view,
-			'show_event_description' => ( isset($settings['show_event_description']) && $settings['show_event_description'] === 'yes' ) ? '1' : '0',
-			'show_appointment_description' => ( isset($settings['show_appointment_description']) && $settings['show_appointment_description'] === 'yes' ) ? '1' : '0',
-			'show_location' => ( isset($settings['show_location']) && $settings['show_location'] === 'yes' ) ? '1' : '0',
-			'show_time' => ( isset($settings['show_time']) && $settings['show_time'] === 'yes' ) ? '1' : '0',
-			'show_tags' => ( isset($settings['show_tags']) && $settings['show_tags'] === 'yes' ) ? '1' : '0',
-			'show_images' => ( isset($settings['show_images']) && $settings['show_images'] === 'yes' ) ? '1' : '0',
-			'show_calendar_name' => ( isset($settings['show_calendar_name']) && $settings['show_calendar_name'] === 'yes' ) ? '1' : '0',
-			'show_services' => ( isset($settings['show_services']) && $settings['show_services'] === 'yes' ) ? '1' : '0',
-			'show_past_events' => ( isset($settings['show_past_events']) && $settings['show_past_events'] === 'yes' ) ? '1' : '0',
-			'show_month_separator' => ( isset($settings['show_month_separator']) && $settings['show_month_separator'] === 'yes' ) ? '1' : '0',
+			'show_event_description' => $this->is_switcher_enabled( $settings, 'show_event_description', true ) ? '1' : '0',
+			'show_appointment_description' => $this->is_switcher_enabled( $settings, 'show_appointment_description', true ) ? '1' : '0',
+			'show_location' => $this->is_switcher_enabled( $settings, 'show_location', true ) ? '1' : '0',
+			'show_time' => $this->is_switcher_enabled( $settings, 'show_time', true ) ? '1' : '0',
+			'show_tags' => $this->is_switcher_enabled( $settings, 'show_tags', false ) ? '1' : '0',
+			'show_title' => $this->is_switcher_enabled( $settings, 'show_title', true ) ? '1' : '0',
+			'show_images' => $this->is_switcher_enabled( $settings, 'show_images', true ) ? '1' : '0',
+			'image_fit' => in_array( $settings['image_fit'] ?? 'cover', [ 'cover', 'contain' ], true ) ? $settings['image_fit'] : 'cover',
+			'hero_title_font_size' => max( 0, min( 120, intval( $settings['hero_title_font_size'] ?? 0 ) ) ),
+			'hero_layout_preset' => in_array( $settings['hero_layout_preset'] ?? 'standard', [ 'compact', 'standard', 'hero' ], true ) ? $settings['hero_layout_preset'] : 'standard',
+			'hero_mobile_optimize' => $this->is_switcher_enabled( $settings, 'hero_mobile_optimize', true ) ? '1' : '0',
+			'show_calendar_name' => $this->is_switcher_enabled( $settings, 'show_calendar_name', true ) ? '1' : '0',
+			'show_services' => $this->is_switcher_enabled( $settings, 'show_services', false ) ? '1' : '0',
+			'show_past_events' => $this->is_switcher_enabled( $settings, 'show_past_events', false ) ? '1' : '0',
+			'show_month_separator' => $this->is_switcher_enabled( $settings, 'show_month_separator', true ) ? '1' : '0',
+			'show_filter' => $this->is_switcher_enabled( $settings, 'show_filter', false ) ? '1' : '0',
 			'event_action' => isset( $settings['event_action'] ) ? $settings['event_action'] : 'modal',
 			'style_mode' => $settings['style_mode'] ?? 'theme',
-			'use_calendar_colors' => ( isset($settings['use_calendar_colors']) && $settings['use_calendar_colors'] === 'yes' ) ? '1' : '0',
+			'use_calendar_colors' => $this->is_switcher_enabled( $settings, 'use_calendar_colors', false ) ? '1' : '0',
 			'custom_primary_color' => $settings['custom_primary_color'] ?? '#2563eb',
 			'custom_text_color' => $settings['custom_text_color'] ?? '#1e293b',
 			'custom_background_color' => $settings['custom_background_color'] ?? '#ffffff',
@@ -768,6 +912,11 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		// Add tags filter if specified
 		if ( ! empty( $settings['tags'] ) ) {
 			$atts['tags'] = implode( ',', $settings['tags'] );
+		}
+
+		// v1.3.0: Add custom CSS (scoped to this widget instance)
+		if ( ! empty( $settings['custom_css'] ) ) {
+			$atts['_custom_css'] = wp_strip_all_tags( wp_unslash( $settings['custom_css'] ) );
 		}
 
 		// Determine shortcode tag based on view type
@@ -804,6 +953,39 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			$output .= ' ' . $key . '="' . esc_attr( $value ) . '"';
 		}
 		return $output;
+	}
+
+	/**
+	 * Normalize Elementor switcher values across versions (yes/true/1/on).
+	 *
+	 * @param array<string,mixed> $settings
+	 */
+	private function is_switcher_enabled( array $settings, string $key, bool $default = false ): bool {
+		if ( ! array_key_exists( $key, $settings ) ) {
+			return $default;
+		}
+
+		$value = $settings[ $key ];
+
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_numeric( $value ) ) {
+			return (int) $value !== 0;
+		}
+
+		if ( is_string( $value ) ) {
+			$normalized = strtolower( trim( $value ) );
+			if ( in_array( $normalized, [ 'yes', 'true', '1', 'on' ], true ) ) {
+				return true;
+			}
+			if ( in_array( $normalized, [ 'no', 'false', '0', 'off', '' ], true ) ) {
+				return false;
+			}
+		}
+
+		return $default;
 	}
 
 		/**

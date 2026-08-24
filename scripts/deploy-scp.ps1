@@ -67,5 +67,16 @@ if ($uploadedItems -eq $totalItems) {
     Write-Host "[WARNING] $uploadedItems/$totalItems items uploaded" -ForegroundColor Yellow
 }
 
+# Normalize permissions for web delivery (directories 755, files 644)
+Write-Host ""
+Write-Host "Normalizing remote permissions..." -ForegroundColor Gray
+& ssh $SshHost "cd $RemotePath && find . -type d -exec chmod 755 {} + && find . -type f -exec chmod 644 {} + && echo 'Permissions normalized'"
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[WARNING] Could not normalize permissions automatically" -ForegroundColor Yellow
+} else {
+    Write-Host "[OK] Remote permissions normalized" -ForegroundColor Green
+}
+
 Write-Host ""
 Write-Host "Plugin deployed to: https://plugin.feg-aschaffenburg.de/wp-admin/plugins.php"

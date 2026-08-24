@@ -82,18 +82,24 @@
 		// Update control model
 		console.log('[CTS Elementor] Updating control options...');
 		controlView.model.set('options', options);
+		if (typeof controlView.model.trigger === 'function') {
+			controlView.model.trigger('change:options');
+		}
 		
 		// Force re-render of the SELECT2 control
 		console.log('[CTS Elementor] Re-rendering control...');
 		if (controlView.render && typeof controlView.render === 'function') {
-			controlView.render();
+			try {
+				controlView.render();
+			} catch (e) {
+				console.warn('[CTS Elementor] Control render failed:', e);
+			}
 		}
 		
-		// Also update the select2 instance if it exists
+		// Best-effort fallback: update DOM options without hard dependency on Select2 internals.
 		var $select = controlView.$el.find('select');
-		if ($select.length && $select.data('select2')) {
-			console.log('[CTS Elementor] Re-initializing Select2...');
-			$select.select2('destroy');
+		if ($select.length) {
+			console.log('[CTS Elementor] Updating select options fallback...');
 			$select.empty();
 			Object.keys(options).forEach(function(value) {
 				$select.append($('<option>', {
@@ -101,7 +107,7 @@
 					text: options[value]
 				}));
 			});
-			$select.select2();
+			$select.trigger('change');
 		}
 		
 		console.log('[CTS Elementor] Control update complete');

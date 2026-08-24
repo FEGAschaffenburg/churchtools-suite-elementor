@@ -2,9 +2,9 @@
 Contributors: fegaschaffenburg
 Tags: churchtools, elementor, events, calendar, church
 Requires at least: 6.0
-Tested up to: 6.7
-Requires PHP: 8.0
-Stable tag: 0.5.0
+Tested up to: 6.9
+Requires PHP: 8.2
+Stable tag: 0.6.15
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -31,7 +31,7 @@ Elementor Page Builder Widget für ChurchTools Suite Events - Listen, Raster und
 = Voraussetzungen =
 
 * WordPress >= 6.0
-* PHP >= 8.0
+* PHP >= 8.2
 * [ChurchTools Suite](https://github.com/FEGAschaffenburg/churchtools-suite) >= v1.0.9.0
 * [Elementor](https://elementor.com/) >= v3.0.0
 
@@ -62,7 +62,7 @@ Ab ChurchTools Suite **v2.0.0** (Q4 2026) ist dieses Sub-Plugin **zwingend erfor
 
 = Manuelle Installation =
 
-1. ZIP-Datei von [GitHub Releases](https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases) herunterladen
+1. ZIP-Datei von [GitHub Releases](https://github.com/FEGAschaffenburg/churchtools-suite/releases) herunterladen
 2. WordPress Admin → Plugins → Installieren → Plugin hochladen
 3. ZIP-Datei auswählen und installieren
 4. Aktivieren
@@ -111,6 +111,19 @@ Ja, aber ohne Elementor-Widget. Gutenberg Blöcke und Shortcodes funktionieren n
 
 == Changelog ==
 
+= 0.6.14 - 2026-04-12 =
+* Fix: Services werden in Listenansicht wieder zuverlässig angezeigt
+* Robustere Auswertung von Elementor-Switcher-Werten (`yes/true/1/on`)
+
+= 0.6.13 - 2026-04-12 =
+* Updater-Hotfix: erzwungene Cache-Aktualisierung auf Plugins-/Update-Seiten
+* Verhindert, dass veraltete Update-Transients ein verfügbares Addon-Update ausblenden
+
+= 0.6.12 - 2026-04-12 =
+* Elementor-4-Kompatibilität gehärtet: robustere Aktualisierung der `event_id`-Optionen im Editor
+* Verzicht auf fragile direkte Select2-Reinitialisierung
+* Readme-Metadaten aktualisiert (Stable Tag, Tested up to)
+
 = 0.5.0 - 2026-02-13 =
 * Initial Beta Release
 * Extracted from ChurchTools Suite v1.0.8.0
@@ -130,12 +143,12 @@ Initial beta release. Erfordert ChurchTools Suite >= v1.0.9.0 und Elementor >= v
 
 == Support ==
 
-* **GitHub Issues:** https://github.com/FEGAschaffenburg/churchtools-suite-elementor/issues
-* **Dokumentation:** https://github.com/FEGAschaffenburg/churchtools-suite-elementor
+* **GitHub Issues:** https://github.com/FEGAschaffenburg/churchtools-suite/issues
+* **Dokumentation:** https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor
 * **Main Plugin:** https://github.com/FEGAschaffenburg/churchtools-suite
 
 == Development ==
 
-* **Repository:** https://github.com/FEGAschaffenburg/churchtools-suite-elementor
+* **Repository:** https://github.com/FEGAschaffenburg/churchtools-suite
 * **License:** GPL-3.0-or-later
 * **Contributing:** Pull Requests welcome!
